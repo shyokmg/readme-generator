@@ -1,8 +1,9 @@
 // TODO: Include packages needed for this application
 const inquirer = require('inquirer');
 const fs = require('fs');
-const genMarkDown = require('utils/generateMarkdown.js');
-
+const gen = require('./utils/generateMarkdown');
+var licenselist = [];
+var licenseUrlList = [];
 // TODO: Create an array of questions for user input
 const questions = [
     {
@@ -27,7 +28,7 @@ const questions = [
     },
     {
         type: 'input',
-        name: 'contr',
+        name: 'contribution',
         message: 'Any Contribution guidelines?',
     },
     {
@@ -39,7 +40,9 @@ const questions = [
         type: 'list',
         name: 'license',
         message: 'Choose a license',
-        choices: ['license1', 'license2', 'license3']
+        choices: licenselist,
+        default: '',
+        loop: false
     },
     {
         type: 'input',
@@ -55,18 +58,40 @@ const questions = [
 
 inquirer.prompt(questions)
     .then((data) => {
-        let fileName = 'README.md';
+        let fileName = './results/README.md';
         const fileContent = writeToFile(fileName, data);
         fs.writeFile(fileName, fileContent, (err) => 
         err ? console.log(err) : console.log('Sucessfully created README.md file'));
     })
 // TODO: Create a function to write README file
 function writeToFile(fileName, data) {
-   return genMarkDown.generateMarkdown(data);
+    return gen.generateMarkdown(data);
 }
+
+function getLicense(){
+    let url = 'https://api.github.com/licenses'
+    fetch(url).then(function(response) {
+        if(response.status === 200){
+            return response.json();
+        } 
+    })
+    .then(function(data) {
+        // console.log(data);
+        for (let i = 0; i < data.length; i++) {
+            licenselist.push(data[i].name);
+            licenseUrlList.push(data[i].url);
+        }
+        console.log(data.length)
+        // console.log(licenselist);
+        // console.log(licenseUrlList);
+
+    })
+}
+
 
 // TODO: Create a function to initialize app
 function init() {
+    getLicense();
 }
 
 // Function call to initialize app
