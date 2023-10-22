@@ -1,9 +1,9 @@
-// TODO: Include packages needed for this application
+// Includes packages needed for this application
 const inquirer = require('inquirer');
 const fs = require('fs');
 const gen = require('./utils/generateMarkdown');
 var licenselist = [];
-// TODO: Create an array of questions for user input
+// An array of questions for user input
 const questions = [
     {
         type: 'input',
@@ -57,9 +57,9 @@ const questions = [
 
 inquirer.prompt(questions)
     .then((data) => {
+        // API call for license
         let url = `https://api.github.com/licenses/${data.license}`
-        var licenseInfo = [];
-        console.log(url);
+        
         fetch(url).then(function (response) {
             if (response.status === 200) {
                 return response.json();
@@ -68,7 +68,7 @@ inquirer.prompt(questions)
             }
         })
             .then(function (result) {
-                // console.log(result);
+                // Get license info based on chosen license
                 var license = {
                     key: result.key,
                     name: result.name,
@@ -85,7 +85,7 @@ inquirer.prompt(questions)
             })
        
     })
-// TODO: Create a function to write README file
+// Function to write README file
 function writeToFile(data, license) {
     return gen.generateMarkdown(data, license);
 }
@@ -106,7 +106,7 @@ function getLicense() {
 }
 
 
-// TODO: Create a function to initialize app
+// Initialize app
 function init() {
     getLicense();
 }
