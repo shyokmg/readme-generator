@@ -1,4 +1,6 @@
 # <Your-Project-Title>
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
+![badmath](https://img.shields.io/github/languages/top/lernantino/badmath)
 
 ## Description
 

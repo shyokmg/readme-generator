@@ -3,7 +3,6 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const gen = require('./utils/generateMarkdown');
 var licenselist = [];
-var licenseUrlList = [];
 // TODO: Create an array of questions for user input
 const questions = [
     {
@@ -58,34 +57,52 @@ const questions = [
 
 inquirer.prompt(questions)
     .then((data) => {
-        let fileName = './results/README.md';
-        const fileContent = writeToFile(fileName, data);
-        fs.writeFile(fileName, fileContent, (err) => 
-        err ? console.log(err) : console.log('Sucessfully created README.md file'));
+        let url = `https://api.github.com/licenses/${data.license}`
+        var licenseInfo = [];
+        console.log(url);
+        fetch(url).then(function (response) {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                console.log('error');
+            }
+        })
+            .then(function (result) {
+                // console.log(result);
+                var license = {
+                    key: result.key,
+                    name: result.name,
+                    spdx_id: result.spdx_id,
+                    url: result.html_url,
+                    desc: result.description
+                }
+ 
+                let fileName = './results/README.md';
+                const fileContent = writeToFile(data, license);
+                fs.writeFile(fileName, fileContent, (err) =>
+                err ? console.log(err) : console.log('Sucessfully created README.md file'));
+
+            })
+       
     })
 // TODO: Create a function to write README file
-function writeToFile(fileName, data) {
-    return gen.generateMarkdown(data);
+function writeToFile(data, license) {
+    return gen.generateMarkdown(data, license);
 }
 
-function getLicense(){
+function getLicense() {
     let url = 'https://api.github.com/licenses'
-    fetch(url).then(function(response) {
-        if(response.status === 200){
+    fetch(url).then(function (response) {
+        if (response.status === 200) {
             return response.json();
-        } 
-    })
-    .then(function(data) {
-        // console.log(data);
-        for (let i = 0; i < data.length; i++) {
-            licenselist.push(data[i].name);
-            licenseUrlList.push(data[i].url);
         }
-        console.log(data.length)
-        // console.log(licenselist);
-        // console.log(licenseUrlList);
-
     })
+        .then(function (data) {
+            for (let i = 0; i < data.length; i++) {
+                licenselist.push(data[i].key);
+            }
+
+        })
 }
 
 
